@@ -21,6 +21,13 @@ namespace MobCrush.Data
         [Tooltip("Cost = BaseCost × Growth^level (exponential sink).")]
         [Min(1f)] public float EnhanceCostGrowth = 1.18f;
 
+        [Header("Run rewards (granted by RunRewardGranter on RunEndedEvent)")]
+        [Min(0f)] public float RunCoinsPerKill = 1f;
+        [Min(0)] public long VictoryCoinBonus = 500;
+        [Min(0)] public long VictoryCoreReward = 5;
+        [Tooltip("Chance the victory equipment drop rolls Rare instead of Common.")]
+        [Range(0f, 1f)] public float VictoryRareDropChance = 0.25f;
+
         [Header("Fusion (GDD §7: 3 identical-rarity same-slot → next rarity)")]
         [Min(2)] public int FusionInputCount = 3;
         [Tooltip("Cores charged per fusion, scaled by target rarity index.")]

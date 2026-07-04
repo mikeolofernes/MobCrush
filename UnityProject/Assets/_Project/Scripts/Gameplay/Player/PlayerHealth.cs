@@ -68,6 +68,13 @@ namespace MobCrush.Gameplay.Player
             _events.Publish(new PlayerHealedEvent(amount, _currentHp, MaxHp));
         }
 
+        /// <summary>
+        /// Top up to the CURRENT MaxHp. Called by the run installer after meta bonuses
+        /// (gear/talents) raise MaxHp — Initialize ran in Awake, before bonuses applied,
+        /// so without this the player would start a run missing the bonus HP.
+        /// </summary>
+        public void RefillToFull() => _currentHp = MaxHp;
+
         /// <summary>Revive support (rewarded ad / gem revive, GDD §1).</summary>
         public void ReviveWithHpFraction(float fraction)
         {

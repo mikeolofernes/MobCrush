@@ -1,0 +1,21 @@
+{
+    "name": "MobCrush.App",
+    "rootNamespace": "MobCrush.App",
+    "references": [
+        "MobCrush.Core",
+        "MobCrush.Data",
+        "MobCrush.Gameplay",
+        "MobCrush.Meta",
+        "MobCrush.UI",
+        "MobCrush.LiveOps"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
