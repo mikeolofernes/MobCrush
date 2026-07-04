@@ -31,8 +31,9 @@ namespace MobCrush.Core.Events
         public readonly string EnemyId;
         public readonly Vector3 Position;
         public readonly bool WasElite;
-        public EnemyKilledEvent(string enemyId, Vector3 position, bool wasElite)
-        { EnemyId = enemyId; Position = position; WasElite = wasElite; }
+        public readonly float XpValue; // carried in the event so the XP system needs no enemy-definition lookup
+        public EnemyKilledEvent(string enemyId, Vector3 position, bool wasElite, float xpValue)
+        { EnemyId = enemyId; Position = position; WasElite = wasElite; XpValue = xpValue; }
     }
 
     public readonly struct ExperienceGainedEvent : IGameEvent

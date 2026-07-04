@@ -58,7 +58,9 @@ namespace MobCrush.Gameplay.Enemies
             _live.Remove(enemy);
             if (giveRewards)
             {
-                _events.Publish(new EnemyKilledEvent(enemy.Definition.Id, enemy.transform.position, enemy.IsElite));
+                // Elites are worth 10x XP (GDD §2 reward weighting).
+                float xp = enemy.Definition.XpValue * (enemy.IsElite ? 10f : 1f);
+                _events.Publish(new EnemyKilledEvent(enemy.Definition.Id, enemy.transform.position, enemy.IsElite, xp));
             }
             _pool.Release(enemy.gameObject);
         }
