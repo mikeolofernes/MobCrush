@@ -43,6 +43,25 @@ namespace MobCrush.LiveOps
 
         public int GetExperimentBucket(string experimentKey, int bucketCount) =>
             bucketCount <= 0 ? 0
-            : Mathf.Abs((SystemInfo.deviceUniqueIdentifier + experimentKey).GetHashCode()) % bucketCount;
+            : Fnv1a(SystemInfo.deviceUniqueIdentifier + experimentKey) % bucketCount;
+
+        /// <summary>
+        /// FNV-1a instead of string.GetHashCode: GetHashCode is not guaranteed stable
+        /// across runtime versions/processes, which would silently reshuffle A/B buckets
+        /// after an engine upgrade and corrupt experiment data.
+        /// </summary>
+        private static int Fnv1a(string s)
+        {
+            unchecked
+            {
+                uint hash = 2166136261;
+                for (int i = 0; i < s.Length; i++)
+                {
+                    hash ^= s[i];
+                    hash *= 16777619;
+                }
+                return (int)(hash & 0x7FFFFFFF);
+            }
+        }
     }
 }

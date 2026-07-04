@@ -26,11 +26,34 @@ namespace MobCrush.Tests
         }
 
         [Test]
-        public void AesTransform_PassesThroughLegacyPlaintext()
+        public void AesTransform_RejectsPlaintext()
+        {
+            // Security: plaintext must never be accepted — that would let cheaters
+            // bypass encryption by writing raw JSON into the save file.
+            var transform = new AesPayloadTransform("test.salt", "device-123");
+            Assert.Catch(() => transform.Decode("{\"Version\":1,\"Coins\":999999}"));
+        }
+
+        [Test]
+        public void AesTransform_RejectsTamperedCiphertext()
         {
             var transform = new AesPayloadTransform("test.salt", "device-123");
-            const string legacy = "{\"Version\":1}"; // not valid base64 → treated as pre-encryption save
-            Assert.AreEqual(legacy, transform.Decode(legacy));
+            string encoded = transform.Encode("{\"Coins\":1}");
+
+            byte[] raw = System.Convert.FromBase64String(encoded);
+            raw[raw.Length / 2] ^= 0xFF; // flip one ciphertext byte
+            string tampered = System.Convert.ToBase64String(raw);
+
+            Assert.Catch(() => transform.Decode(tampered)); // HMAC must reject it
+        }
+
+        [Test]
+        public void AesTransform_RejectsWrongDeviceKey()
+        {
+            var deviceA = new AesPayloadTransform("test.salt", "device-A");
+            var deviceB = new AesPayloadTransform("test.salt", "device-B");
+            string encoded = deviceA.Encode("{\"Coins\":1}");
+            Assert.Catch(() => deviceB.Decode(encoded));
         }
 
         [Test]
