@@ -12,7 +12,7 @@ namespace MobCrush.Gameplay.Enemies
     /// Holds the mutable state its stateless brain manipulates (TimerA/B, FlagA).
     /// Pooled via IPoolable; damage via IDamageable.
     /// </summary>
-    public sealed class EnemyController : MonoBehaviour, IDamageable, IPoolable
+    public sealed class EnemyController : MonoBehaviour, ITargetable, IPoolable
     {
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private Animator _animator; // optional

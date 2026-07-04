@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using MobCrush.Gameplay.Enemies;
+using MobCrush.Gameplay.Combat;
 using MobCrush.Gameplay.Weapons;
 using MobCrush.Core.Pooling;
 using UnityEngine;
@@ -17,7 +17,7 @@ namespace MobCrush.Gameplay.Projectiles
     public sealed class Projectile : MonoBehaviour, IPoolable
     {
         // Shared scratch: projectile Updates run sequentially on the main thread.
-        private static readonly List<EnemyController> Query = new(32);
+        private static readonly List<ITargetable> Query = new(32);
 
         private WeaponContext _ctx;
         private ProjectileConfig _config;
@@ -31,7 +31,7 @@ namespace MobCrush.Gameplay.Projectiles
         private bool _live;
 
         // Enemies already damaged (pierce/boomerang must not re-hit); small list, cleared per spawn.
-        private readonly List<EnemyController> _alreadyHit = new(8);
+        private readonly List<ITargetable> _alreadyHit = new(8);
 
         public void Launch(WeaponContext ctx, in ProjectileConfig config, Vector2 position, Vector2 direction)
         {
@@ -127,10 +127,10 @@ namespace MobCrush.Gameplay.Projectiles
             }
         }
 
-        private void RedirectToNextTarget(EnemyController exclude, Vector2 from)
+        private void RedirectToNextTarget(ITargetable exclude, Vector2 from)
         {
-            // Nearest enemy we haven't already damaged; fallback: keep flying straight.
-            EnemyController best = null;
+            // Nearest target we haven't already damaged; fallback: keep flying straight.
+            ITargetable best = null;
             float bestSqr = 12f * 12f;
             int count = _ctx.Enemies.QueryRadius(from, 12f, Query);
             for (int i = 0; i < count; i++)

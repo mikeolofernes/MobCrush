@@ -18,7 +18,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
         private WeaponContext _ctx;
         private WeaponInstance _weapon;
         private readonly List<Transform> _bodies = new(8);
-        private readonly Dictionary<Enemies.EnemyController, float> _lockouts = new(64);
+        private readonly Dictionary<ITargetable, float> _lockouts = new(64);
         private float _angleDeg;
         private int _builtForLevel = -1;
 

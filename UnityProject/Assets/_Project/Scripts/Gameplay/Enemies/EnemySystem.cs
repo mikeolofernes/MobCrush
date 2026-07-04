@@ -72,6 +72,12 @@ namespace MobCrush.Gameplay.Enemies
             _live.Clear();
         }
 
+        // Optional unique target (the stage boss) included in weapon target queries.
+        private ITargetable _bossTarget;
+
+        /// <summary>Registered by BossSpawner so player weapons treat the boss as a target (Loop 13).</summary>
+        public void SetBossTarget(ITargetable boss) => _bossTarget = boss;
+
         /// <summary>Damage-number/analytics feed without every enemy holding a bus reference.</summary>
         public void NotifyDamageDealt(float amount, bool critical, Vector3 position) =>
             _events.Publish(new DamageDealtEvent(amount, critical, position));
@@ -91,9 +97,9 @@ namespace MobCrush.Gameplay.Enemies
 
         /// <summary>Nearest living enemy to a point, or null. Linear scan: at ≤300 enemies a cache-friendly
         /// list scan beats maintaining a spatial grid; revisit in Loop 21 only if profiling disagrees.</summary>
-        public EnemyController FindNearest(Vector2 from, float maxRange = float.PositiveInfinity)
+        public ITargetable FindNearest(Vector2 from, float maxRange = float.PositiveInfinity)
         {
-            EnemyController best = null;
+            ITargetable best = null;
             float bestSqr = maxRange * maxRange;
             for (int i = 0; i < _live.Count; i++)
             {
@@ -102,11 +108,16 @@ namespace MobCrush.Gameplay.Enemies
                 float sqr = (e.Position - from).sqrMagnitude;
                 if (sqr < bestSqr) { bestSqr = sqr; best = e; }
             }
+            if (_bossTarget != null && _bossTarget.IsAlive)
+            {
+                float sqr = (_bossTarget.Position - from).sqrMagnitude;
+                if (sqr < bestSqr) best = _bossTarget;
+            }
             return best;
         }
 
-        /// <summary>Fills a caller-owned buffer with enemies inside a radius (no allocation). Returns count.</summary>
-        public int QueryRadius(Vector2 center, float radius, List<EnemyController> results)
+        /// <summary>Fills a caller-owned buffer with targets inside a radius (no allocation). Returns count.</summary>
+        public int QueryRadius(Vector2 center, float radius, List<ITargetable> results)
         {
             results.Clear();
             float sqrRadius = radius * radius;
@@ -116,6 +127,9 @@ namespace MobCrush.Gameplay.Enemies
                 if (e.IsAlive && (e.Position - center).sqrMagnitude <= sqrRadius)
                     results.Add(e);
             }
+            if (_bossTarget != null && _bossTarget.IsAlive &&
+                (_bossTarget.Position - center).sqrMagnitude <= sqrRadius)
+                results.Add(_bossTarget);
             return results.Count;
         }
     }

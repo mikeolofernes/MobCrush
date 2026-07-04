@@ -32,16 +32,16 @@ namespace MobCrush.Gameplay.Weapons
         public IDamageResolver DamageResolver;
 
         /// <summary>Shared scratch list for radius queries. Valid only within one behavior call.</summary>
-        public readonly List<EnemyController> QueryBuffer = new(64);
+        public readonly List<ITargetable> QueryBuffer = new(64);
 
         public Vector2 PlayerPosition => Player.transform.position;
         public Vector2 PlayerFacing => Player.Facing;
 
-        /// <summary>Convenience: resolve + apply + knockback-free hit on one enemy.</summary>
-        public void Hit(EnemyController enemy, float baseDamage, Vector2 from)
+        /// <summary>Convenience: resolve + apply one hit on any target (enemy or boss).</summary>
+        public void Hit(ITargetable target, float baseDamage, Vector2 from)
         {
             var info = DamageResolver.Resolve(baseDamage, from);
-            enemy.TakeDamage(info);
+            target.TakeDamage(info);
         }
     }
 }
