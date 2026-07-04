@@ -39,7 +39,8 @@ namespace MobCrush.Gameplay.Bosses
             var go = Instantiate(definition.Prefab, pos, Quaternion.identity);
             ActiveBoss = go.GetComponent<BossController>();
             ActiveBoss.Initialize(definition, _enemies, _player,
-                (Combat.IDamageable)_playerDamageable, ServiceLocator.Get<IEventBus>());
+                (Combat.IDamageable)_playerDamageable, ServiceLocator.Get<IEventBus>(),
+                ServiceLocator.Get<Core.Pooling.IPoolService>());
 
             _enemies.SetBossTarget(ActiveBoss); // player weapons can now aim at and hit the boss
         }

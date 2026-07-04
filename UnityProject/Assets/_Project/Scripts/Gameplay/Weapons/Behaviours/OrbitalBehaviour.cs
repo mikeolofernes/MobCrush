@@ -21,6 +21,8 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
         private readonly Dictionary<ITargetable, float> _lockouts = new(64);
         private float _angleDeg;
         private int _builtForLevel = -1;
+        private float _sweepTimer;
+        private static readonly List<ITargetable> ExpiredBuffer = new(32); // shared scratch, main thread only
 
         public void Equip(WeaponContext context, WeaponInstance instance)
         {
@@ -59,8 +61,18 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
                 }
             }
 
-            // Periodic lockout cleanup keeps the dictionary from growing all run.
-            if (_lockouts.Count > 128) _lockouts.Clear();
+            // Periodic sweep of EXPIRED entries only. (The old size-triggered Clear()
+            // wiped live lockouts too, causing brief double-hits under crowds.)
+            _sweepTimer -= deltaTime;
+            if (_sweepTimer <= 0f)
+            {
+                _sweepTimer = 2f;
+                ExpiredBuffer.Clear();
+                foreach (var pair in _lockouts)
+                    if (pair.Value < Time.time) ExpiredBuffer.Add(pair.Key);
+                for (int i = 0; i < ExpiredBuffer.Count; i++)
+                    _lockouts.Remove(ExpiredBuffer[i]);
+            }
         }
 
         public void Unequip()

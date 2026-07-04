@@ -11,7 +11,7 @@ namespace MobCrush.Meta.Progression
     /// later override targets/rewards per id without a data migration. Progress accrues
     /// from gameplay events; state persists in SaveModel with a date stamp for reset.
     /// </summary>
-    public sealed class DailyMissionService
+    public sealed class DailyMissionService : IDisposable
     {
         public sealed class MissionSpec
         {
@@ -48,6 +48,15 @@ namespace MobCrush.Meta.Progression
             _events.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
             _events.Subscribe<RunEndedEvent>(OnRunEnded);
             _events.Subscribe<EquipmentChangedEvent>(OnEquipmentChanged);
+        }
+
+        /// <summary>Unhook from the bus. Required if the service is ever rebuilt (save-slot switch) —
+        /// otherwise the orphaned instance keeps accruing mission progress twice.</summary>
+        public void Dispose()
+        {
+            _events.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
+            _events.Unsubscribe<RunEndedEvent>(OnRunEnded);
+            _events.Unsubscribe<EquipmentChangedEvent>(OnEquipmentChanged);
         }
 
         public IReadOnlyList<SaveModel.MissionProgress> Missions => _save.Data.DailyMissions;

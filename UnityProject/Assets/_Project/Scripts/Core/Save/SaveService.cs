@@ -98,13 +98,16 @@ namespace MobCrush.Core.Save
                 var jObject = JObject.Parse(_transform.Decode(File.ReadAllText(path)));
                 int version = jObject.Value<int?>("Version") ?? 1;
 
-                // Run each applicable migration exactly once, in order.
+                // Run each applicable migration exactly once, in order. The local version
+                // is advanced alongside the JSON so the comparison stays correct even if a
+                // future migration list is not strictly monotonic.
                 foreach (var migration in _migrations)
                 {
                     if (migration.FromVersion >= version)
                     {
                         migration.Apply(jObject);
-                        jObject["Version"] = migration.FromVersion + 1;
+                        version = migration.FromVersion + 1;
+                        jObject["Version"] = version;
                     }
                 }
 

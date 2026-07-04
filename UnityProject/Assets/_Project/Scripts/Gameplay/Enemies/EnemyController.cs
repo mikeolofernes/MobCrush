@@ -29,6 +29,9 @@ namespace MobCrush.Gameplay.Enemies
         private float _hp;
         private float _contactTimer;
 
+        /// <summary>Slot in EnemySystem's live list; maintained by EnemySystem only (O(1) swap-remove).</summary>
+        [System.NonSerialized] public int LiveIndex = -1;
+
         // Scratch state for brains (meaningless names on purpose: semantics belong to the brain).
         public float TimerA;
         public float TimerB;

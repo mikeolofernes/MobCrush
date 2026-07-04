@@ -18,7 +18,8 @@ namespace MobCrush.Core.Pooling
 
         private readonly Dictionary<GameObject, Pool> _poolsByPrefab = new();
         private readonly Dictionary<GameObject, Pool> _poolByInstance = new();
-        private readonly List<GameObject> _liveInstances = new();
+        // HashSet: Release is called per despawn (hundreds/minute); List.Remove was O(n).
+        private readonly HashSet<GameObject> _liveInstances = new();
         private readonly Transform _root;
 
         public PoolService(Transform poolRoot)
@@ -79,8 +80,10 @@ namespace MobCrush.Core.Pooling
         public void Clear()
         {
             // Release live instances first so IPoolable teardown runs.
-            for (int i = _liveInstances.Count - 1; i >= 0; i--)
-                Release(_liveInstances[i]);
+            // Copy: Release mutates the set. One allocation at teardown is fine.
+            var live = new List<GameObject>(_liveInstances);
+            for (int i = 0; i < live.Count; i++)
+                Release(live[i]);
 
             foreach (var pair in _poolsByPrefab)
             {

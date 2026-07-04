@@ -40,7 +40,12 @@ namespace MobCrush.Gameplay.Upgrades
             _events = ServiceLocator.Get<IEventBus>();
             _state = ServiceLocator.Get<IGameStateMachine>();
             _generator = new DraftGenerator(_pool);
+
             _view = _viewBehaviour as IUpgradeDraftView;
+            if (_view == null)
+                throw new System.InvalidOperationException(
+                    $"UpgradeDraftSystem on '{name}': _viewBehaviour must implement IUpgradeDraftView " +
+                    "(wire UpgradeDraftView here). Failing at startup beats an NRE on the first level-up.");
 
             _events.Subscribe<LevelUpEvent>(OnLevelUp);
         }
@@ -118,7 +123,11 @@ namespace MobCrush.Gameplay.Upgrades
             _draftOpen = false;
 
             if (_pendingDrafts > 0) { OpenDraft(); return; } // chained level-ups draft immediately
-            _state.Set(GameState.Playing);
+
+            // Only resume if WE still own the pause — if the run ended while a draft was
+            // queued, stomping RunEnding/Results with Playing would resurrect a dead run.
+            if (_state.Current == GameState.LevelUpPause)
+                _state.Set(GameState.Playing);
         }
     }
 }

@@ -5,26 +5,24 @@ using UnityEngine;
 namespace MobCrush.Core.Events
 {
     /// <summary>
-    /// Default <see cref="IEventBus"/>: one handler list per event type.
-    /// why: Delegate.Combine on a cached delegate would allocate on every (un)subscribe;
-    /// a List lets us mutate in place. Publish iterates by index (no enumerator alloc)
-    /// over a snapshot copy so handlers may safely unsubscribe during dispatch.
+    /// Default <see cref="IEventBus"/>: one handler list per event type, stored on the
+    /// instance. (Post-review fix: an earlier per-closed-generic static cache leaked every
+    /// bus instance for the process lifetime — visible in play-mode test runs — for an
+    /// unmeasured micro-optimization. One dictionary lookup per publish is well within budget.)
+    /// Publish iterates by index in reverse so handlers may unsubscribe themselves during
+    /// dispatch; handlers added during dispatch run from the next publish.
     /// </summary>
     public sealed class EventBus : IEventBus
     {
-        private static class Channel<T> where T : struct, IGameEvent
-        {
-            // why: per-closed-generic static list = zero dictionary lookups on the hot publish path.
-            public static readonly Dictionary<EventBus, List<Action<T>>> Handlers = new();
-        }
+        private readonly Dictionary<Type, object> _handlers = new();
 
         private List<Action<T>> GetList<T>() where T : struct, IGameEvent
         {
-            if (!Channel<T>.Handlers.TryGetValue(this, out var list))
-            {
-                list = new List<Action<T>>(8);
-                Channel<T>.Handlers[this] = list;
-            }
+            if (_handlers.TryGetValue(typeof(T), out var existing))
+                return (List<Action<T>>)existing;
+
+            var list = new List<Action<T>>(8);
+            _handlers[typeof(T)] = list;
             return list;
         }
 
@@ -43,8 +41,6 @@ namespace MobCrush.Core.Events
         public void Publish<T>(in T evt) where T : struct, IGameEvent
         {
             var list = GetList<T>();
-            // Iterate a stable count and re-check membership implicitly by index bounds;
-            // handlers added during dispatch run on the next publish.
             for (int i = list.Count - 1; i >= 0; i--)
             {
                 if (i >= list.Count) continue; // list shrank during dispatch

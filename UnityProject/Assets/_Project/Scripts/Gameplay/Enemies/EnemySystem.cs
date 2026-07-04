@@ -49,13 +49,23 @@ namespace MobCrush.Gameplay.Enemies
             var go = _pool.Get(definition.Prefab, position, Quaternion.identity);
             var enemy = go.GetComponent<EnemyController>();
             enemy.Initialize(definition, this, _player, _playerHealth.Damageable, elite, hpMultiplier, damageMultiplier);
+            enemy.LiveIndex = _live.Count;
             _live.Add(enemy);
             return enemy;
         }
 
         public void Despawn(EnemyController enemy, bool giveRewards)
         {
-            _live.Remove(enemy);
+            // O(1) swap-remove (List.Remove was an O(n) scan per death). LiveIndex is
+            // maintained here only; -1 guards against double-despawn releasing twice.
+            int index = enemy.LiveIndex;
+            if (index < 0 || index >= _live.Count || _live[index] != enemy) return;
+            int last = _live.Count - 1;
+            _live[index] = _live[last];
+            _live[index].LiveIndex = index;
+            _live.RemoveAt(last);
+            enemy.LiveIndex = -1;
+
             if (giveRewards)
             {
                 // Elites are worth 10x XP (GDD §2 reward weighting).
@@ -68,7 +78,10 @@ namespace MobCrush.Gameplay.Enemies
         public void DespawnAll()
         {
             for (int i = _live.Count - 1; i >= 0; i--)
+            {
+                _live[i].LiveIndex = -1;
                 _pool.Release(_live[i].gameObject);
+            }
             _live.Clear();
         }
 

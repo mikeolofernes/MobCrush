@@ -22,6 +22,7 @@ namespace MobCrush.Gameplay.Bosses
         private Transform _player;
         private IDamageable _playerDamageable;
         private IEventBus _events;
+        private Core.Pooling.IPoolService _pool;
 
         private float _hp;
         private int _phaseIndex = -1;
@@ -45,8 +46,9 @@ namespace MobCrush.Gameplay.Bosses
         public float MaxHp => _def != null ? _def.MaxHp : 1f;
 
         public void Initialize(BossDefinition definition, EnemySystem enemies, Transform player,
-                               IDamageable playerDamageable, IEventBus events)
+                               IDamageable playerDamageable, IEventBus events, Core.Pooling.IPoolService pool)
         {
+            _pool = pool;
             _def = definition;
             _enemies = enemies;
             _player = player;
@@ -219,10 +221,10 @@ namespace MobCrush.Gameplay.Bosses
 
         private void FireShot(Vector2 dir, float speed, float damage)
         {
+            // Pool injected at Initialize — gameplay code must not touch the locator (Loop 3 §4).
             if (_def.ProjectilePrefab == null) return;
-            var pool = Core.Services.ServiceLocator.Get<Core.Pooling.IPoolService>();
-            var go = pool.Get(_def.ProjectilePrefab, transform.position, Quaternion.identity);
-            go.GetComponent<EnemyProjectile>().Launch(dir, speed, damage, _playerDamageable, pool);
+            var go = _pool.Get(_def.ProjectilePrefab, transform.position, Quaternion.identity);
+            go.GetComponent<EnemyProjectile>().Launch(dir, speed, damage, _playerDamageable, _pool);
         }
 
         private static Vector2 Rotate(Vector2 v, float radians)
