@@ -26,7 +26,12 @@ namespace MobCrush.Core.SceneFlow
 
         [Header("Flow")]
         [SerializeField] private string _mainMenuScene = "Menu";
-        [SerializeField] private string _saveFileName = "mobcrush_save.json";
+
+        [Header("Save (Loop 20)")]
+        [Tooltip("Active slot 0-2; slot files are independent SaveService instances.")]
+        [SerializeField, Range(0, 2)] private int _saveSlot = 0;
+        [Tooltip("App-specific salt mixed into the device-bound AES key. Changing it orphans existing saves.")]
+        [SerializeField] private string _saveSalt = "mobcrush.v1";
 
         private async void Awake()
         {
@@ -40,9 +45,14 @@ namespace MobCrush.Core.SceneFlow
             var poolService = new PoolService(_poolRoot);
             ServiceLocator.Register<IPoolService>(poolService);
 
-            var saveService = new SaveService(_saveFileName, GetMigrations());
+            // Encrypted, slotted persistence: slot_<n>.sav, AES key bound to this device.
+            var transform = new AesPayloadTransform(_saveSalt, SystemInfo.deviceUniqueIdentifier);
+            var saveService = new SaveService($"slot_{_saveSlot}.sav", GetMigrations(), transform);
             saveService.Load();
             ServiceLocator.Register<ISaveService>(saveService);
+
+            var autosave = gameObject.AddComponent<AutosaveController>();
+            autosave.Initialize(saveService, eventBus);
 
             ServiceLocator.Register<IAudioService>(_audioService);
             ServiceLocator.Register<IInputService>(_inputService);
