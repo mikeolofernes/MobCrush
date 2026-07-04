@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MobCrush.Core.Events;
 using MobCrush.Core.Save;
 using MobCrush.Data;
+using MobCrush.Meta.Progression;
 
 namespace MobCrush.Meta.Equipment
 {
@@ -17,14 +18,17 @@ namespace MobCrush.Meta.Equipment
         private readonly ISaveService _save;
         private readonly IEventBus _events;
         private readonly EconomyConfig _economy;
+        private readonly MetaProgressionService _wallet; // single currency authority (Loop 21 cleanup)
         private readonly IReadOnlyDictionary<string, EquipmentDefinition> _definitions;
 
         public EquipmentService(ISaveService save, IEventBus events, EconomyConfig economy,
+                                MetaProgressionService wallet,
                                 IReadOnlyDictionary<string, EquipmentDefinition> definitions)
         {
             _save = save;
             _events = events;
             _economy = economy;
+            _wallet = wallet;
             _definitions = definitions;
         }
 
@@ -52,13 +56,12 @@ namespace MobCrush.Meta.Equipment
         {
             var item = FindItem(instanceId);
             if (item == null) return false;
-            if (!EquipmentMath.CanEnhance(_economy, item.EnhancementLevel, _save.Data.Coins)) return false;
+            if (!EquipmentMath.CanEnhance(_economy, item.EnhancementLevel, _wallet.Coins)) return false;
 
-            _save.Data.Coins -= _economy.GetEnhanceCost(item.EnhancementLevel);
+            if (!_wallet.TrySpend("coins", _economy.GetEnhanceCost(item.EnhancementLevel))) return false;
             item.EnhancementLevel++;
 
             _save.Save();
-            _events.Publish(new CurrencyChangedEvent("coins", _save.Data.Coins));
             _events.Publish(new EquipmentChangedEvent());
             return true;
         }
@@ -92,14 +95,14 @@ namespace MobCrush.Meta.Equipment
             }
 
             long coreCost = _economy.FusionCoreCostPerRarity * ((int)rarity + 1);
-            if (_save.Data.Cores < coreCost) return false;
+            if (_wallet.Cores < coreCost) return false;
 
             int bestEnhance = 0;
             foreach (var item in items)
                 if (item.EnhancementLevel > bestEnhance) bestEnhance = item.EnhancementLevel;
 
             // Commit.
-            _save.Data.Cores -= coreCost;
+            if (!_wallet.TrySpend("cores", coreCost)) return false;
             foreach (var item in items)
                 _save.Data.Inventory.Remove(item);
 
@@ -113,7 +116,6 @@ namespace MobCrush.Meta.Equipment
             _save.Data.Inventory.Add(fused);
 
             _save.Save();
-            _events.Publish(new CurrencyChangedEvent("cores", _save.Data.Cores));
             _events.Publish(new EquipmentChangedEvent());
             return true;
         }
