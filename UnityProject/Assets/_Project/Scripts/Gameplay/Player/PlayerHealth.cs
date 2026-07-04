@@ -1,6 +1,7 @@
 using MobCrush.Core.Events;
 using MobCrush.Gameplay.Combat;
 using UnityEngine;
+using MobCrush.Data;
 
 namespace MobCrush.Gameplay.Player
 {

@@ -1,6 +1,7 @@
 using MobCrush.Gameplay.Combat;
 using MobCrush.Gameplay.Projectiles;
 using UnityEngine;
+using MobCrush.Data;
 
 namespace MobCrush.Gameplay.Weapons.Behaviours
 {

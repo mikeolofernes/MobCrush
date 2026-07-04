@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MobCrush.Gameplay.Combat;
 using UnityEngine;
+using MobCrush.Data;
 
 namespace MobCrush.Gameplay.Weapons.Behaviours
 {

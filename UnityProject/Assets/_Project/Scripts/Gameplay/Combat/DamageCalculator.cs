@@ -1,5 +1,6 @@
 using MobCrush.Gameplay.Weapons;
 using UnityEngine;
+using MobCrush.Data;
 
 namespace MobCrush.Gameplay.Combat
 {

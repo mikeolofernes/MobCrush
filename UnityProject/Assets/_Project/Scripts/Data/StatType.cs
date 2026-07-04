@@ -1,6 +1,8 @@
-namespace MobCrush.Gameplay.Combat
+namespace MobCrush.Data
 {
     /// <summary>
+    /// Lives in MobCrush.Data (not Gameplay): pure shared vocabulary consumed by both
+    /// gameplay code and data definitions, and Data must not depend on Gameplay.
     /// Every numeric knob that gameplay math can read. One shared vocabulary used by
     /// player base stats, equipment, talents and in-run upgrades — so any source can
     /// modify any stat without new code paths (GDD §1).

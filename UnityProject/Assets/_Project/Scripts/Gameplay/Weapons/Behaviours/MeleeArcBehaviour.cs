@@ -1,5 +1,6 @@
 using MobCrush.Gameplay.Weapons;
 using UnityEngine;
+using MobCrush.Data;
 
 namespace MobCrush.Gameplay.Weapons.Behaviours
 {
@@ -25,7 +26,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
         public void Fire()
         {
             var stats = _weapon.Stats;
-            float radius = stats.Area * (1f + _ctx.Player.Stats.Get(Combat.StatType.AreaPercent));
+            float radius = stats.Area * (1f + _ctx.Player.Stats.Get(StatType.AreaPercent));
             Vector2 origin = _ctx.PlayerPosition;
             Vector2 facing = _ctx.PlayerFacing;
 
