@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "com.unity.addressables": "2.3.16",
+    "com.unity.inputsystem": "1.11.2",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.render-pipelines.universal": "17.0.3",
+    "com.unity.test-framework": "1.4.5",
+    "com.unity.textmeshpro": "3.2.0-pre.10",
+    "com.unity.2d.sprite": "1.0.0",
+    "com.unity.2d.animation": "10.1.4",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.particlesystem": "1.0.0",
+    "com.unity.modules.physics2d": "1.0.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0"
+  }
+}
