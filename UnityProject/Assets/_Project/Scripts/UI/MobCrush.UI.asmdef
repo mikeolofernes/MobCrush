@@ -1,0 +1,20 @@
+{
+    "name": "MobCrush.UI",
+    "rootNamespace": "MobCrush.UI",
+    "references": [
+        "MobCrush.Core",
+        "MobCrush.Data",
+        "MobCrush.Gameplay",
+        "MobCrush.Meta",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

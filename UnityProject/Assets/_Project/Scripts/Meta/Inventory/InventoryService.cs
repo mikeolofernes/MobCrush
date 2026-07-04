@@ -60,6 +60,10 @@ namespace MobCrush.Meta.Inventory
             return result;
         }
 
+        /// <summary>Definition lookup for UI rendering (icon, slot, name).</summary>
+        public EquipmentDefinition GetDefinitionFor(SaveModel.OwnedEquipment item) =>
+            item == null ? null : _equipment.GetDefinition(item.DefinitionId);
+
         public SaveModel.OwnedEquipment GetEquipped(EquipmentSlot slot)
         {
             if (!_save.Data.EquippedBySlot.TryGetValue(slot.ToString(), out var id)) return null;
