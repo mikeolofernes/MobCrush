@@ -55,7 +55,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
                     var enemy = _ctx.QueryBuffer[k];
                     if (_lockouts.TryGetValue(enemy, out float until) && Time.time < until) continue;
                     _lockouts[enemy] = Time.time + RehitLockout;
-                    _ctx.Hit(enemy, stats.Damage, pos);
+                    _ctx.Hit(enemy, stats.Damage, pos, stats.Knockback);
                 }
             }
 

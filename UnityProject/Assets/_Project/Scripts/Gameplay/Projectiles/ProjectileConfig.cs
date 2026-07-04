@@ -24,6 +24,7 @@ namespace MobCrush.Gameplay.Projectiles
         public float Range;           // boomerang turnaround distance
         public float HomingTurnSpeed; // deg/sec steering for Homing
 
+        public float Knockback;       // impulse applied to regular enemies per hit (bosses immune)
         public int Pierce;            // enemies passed through after the first hit
         public int Bounce;            // redirects to a new target after a hit
         public int SplitCount;        // children spawned on FIRST hit (children never re-split)
@@ -39,6 +40,7 @@ namespace MobCrush.Gameplay.Projectiles
             Motion = ProjectileMotion.Straight,
             Range = 6f,
             HomingTurnSpeed = 360f,
+            Knockback = 0f,
             Pierce = 0,
             Bounce = 0,
             SplitCount = 0,

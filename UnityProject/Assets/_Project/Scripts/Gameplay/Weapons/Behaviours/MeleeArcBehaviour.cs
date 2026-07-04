@@ -36,7 +36,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
                 var enemy = _ctx.QueryBuffer[i];
                 Vector2 to = (enemy.Position - origin).normalized;
                 if (Vector2.Dot(to, facing) >= ArcCosine)
-                    _ctx.Hit(enemy, stats.Damage, origin);
+                    _ctx.Hit(enemy, stats.Damage, origin, stats.Knockback);
             }
 
             SpawnSwingVfx(origin, facing, radius);

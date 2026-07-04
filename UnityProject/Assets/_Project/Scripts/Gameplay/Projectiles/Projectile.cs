@@ -109,7 +109,7 @@ namespace MobCrush.Gameplay.Projectiles
                 if (_alreadyHit.Contains(enemy)) continue;
 
                 _alreadyHit.Add(enemy);
-                _ctx.Hit(enemy, _config.Damage, pos);
+                _ctx.Hit(enemy, _config.Damage, pos, _config.Knockback);
 
                 if (!_hasSplit && _config.SplitCount > 0) Split(pos);
 
@@ -147,6 +147,13 @@ namespace MobCrush.Gameplay.Projectiles
         private void Split(Vector2 at)
         {
             _hasSplit = true;
+
+            // Pool-safety: children can only spawn from the recorded PREFAB. Falling back
+            // to this live instance would make the pool key a scene object and corrupt the
+            // pool (it would Instantiate copies of an active projectile). No source → no split.
+            var prefab = gameObject.GetPrefabSource();
+            if (prefab == null) return;
+
             var childConfig = _config;
             childConfig.SplitCount = 0;               // children never re-split (no exponential storms)
             childConfig.Damage = _config.Damage * 0.5f; // halved child damage: split is width, not free DPS
@@ -157,7 +164,8 @@ namespace MobCrush.Gameplay.Projectiles
             {
                 float rad = step * i * Mathf.Deg2Rad;
                 var dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-                var go = _ctx.Pool.Get(gameObject.GetPrefabSource() ?? gameObject, at, Quaternion.identity);
+                var go = _ctx.Pool.Get(prefab, at, Quaternion.identity);
+                go.RegisterPrefabSource(prefab); // children may bounce/pierce like the parent
                 go.GetComponent<Projectile>().Launch(_ctx, childConfig, at, dir);
             }
         }
@@ -180,6 +188,10 @@ namespace MobCrush.Gameplay.Projectiles
 
         public void OnSpawned() { }
         public void OnDespawned() { _live = false; _alreadyHit.Clear(); }
+
+        // Registry hygiene: without this, destroyed instances (PoolService.Clear on run
+        // teardown) would leak dead references in the prefab-source table forever.
+        private void OnDestroy() => gameObject.UnregisterPrefabSource();
     }
 
     /// <summary>
@@ -191,6 +203,7 @@ namespace MobCrush.Gameplay.Projectiles
         private static readonly Dictionary<GameObject, GameObject> Sources = new();
 
         public static void RegisterPrefabSource(this GameObject instance, GameObject prefab) => Sources[instance] = prefab;
+        public static void UnregisterPrefabSource(this GameObject instance) => Sources.Remove(instance);
         public static GameObject GetPrefabSource(this GameObject instance) =>
             Sources.TryGetValue(instance, out var p) ? p : null;
     }

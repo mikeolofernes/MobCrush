@@ -38,7 +38,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
             {
                 var enemy = _ctx.QueryBuffer[i];
                 if (DistanceToSegmentSqr(enemy.Position, origin, end) <= halfWidth * halfWidth)
-                    _ctx.Hit(enemy, stats.Damage, origin);
+                    _ctx.Hit(enemy, stats.Damage, origin, stats.Knockback);
             }
 
             SpawnBeamVfx(origin, dir, halfWidth);

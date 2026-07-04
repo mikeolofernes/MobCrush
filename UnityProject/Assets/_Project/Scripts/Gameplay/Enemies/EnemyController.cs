@@ -57,12 +57,22 @@ namespace MobCrush.Gameplay.Enemies
 
         private float _damageMultiplier = 1f;
 
-        /// <summary>Called by EnemySystem every frame. Brain moves; contact damage handled here (shared by all archetypes).</summary>
         private float _flashTimer; // hit-flash (Loop 19): brief white-out on damage, decays here
+        private Vector2 _knockback; // impulse velocity from weapon hits, decays in Tick
 
+        /// <summary>Weapon knockback entry point (WeaponContext.Hit). Impulses stack, then decay.</summary>
+        public void ApplyKnockback(Vector2 impulse) => _knockback += impulse;
+
+        /// <summary>Called by EnemySystem every frame. Brain moves; contact damage handled here (shared by all archetypes).</summary>
         public void Tick(float dt)
         {
             if (!IsAlive) return;
+
+            if (_knockback.sqrMagnitude > 0.0001f)
+            {
+                transform.position += (Vector3)(_knockback * dt);
+                _knockback *= Mathf.Max(0f, 1f - 8f * dt); // exponential-ish decay: shove reads, then control returns
+            }
 
             if (_flashTimer > 0f)
             {
@@ -152,6 +162,7 @@ namespace MobCrush.Gameplay.Enemies
         {
             TimerA = 0f; TimerB = 0f; FlagA = false;
             _contactTimer = 0f;
+            _knockback = Vector2.zero;
             if (_spriteRenderer != null) _spriteRenderer.color = Color.white;
         }
 

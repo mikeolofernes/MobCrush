@@ -73,7 +73,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
                     _zones[i].PulseTimer = PulseInterval;
                     int count = _ctx.Enemies.QueryRadius(_zones[i].Center, radius, _ctx.QueryBuffer);
                     for (int k = 0; k < count; k++)
-                        _ctx.Hit(_ctx.QueryBuffer[k], stats.Damage, _zones[i].Center);
+                        _ctx.Hit(_ctx.QueryBuffer[k], stats.Damage, _zones[i].Center, stats.Knockback);
                 }
 
                 if (_zones[i].RemainingDuration <= 0f)

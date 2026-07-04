@@ -44,6 +44,7 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
             config.Damage = stats.Damage;
             config.Speed = stats.ProjectileSpeed;
             config.Pierce = stats.Pierce;
+            config.Knockback = stats.Knockback;
             config.Range = stats.Area > 0f ? stats.Area * 4f : config.Range; // boomerang reach scales with Area stat
             config.Motion = _mode switch
             {
@@ -51,6 +52,13 @@ namespace MobCrush.Gameplay.Weapons.Behaviours
                 Mode.Homing => ProjectileMotion.Homing,
                 _ => ProjectileMotion.Straight
             };
+            if (_mode == Mode.Boomerang)
+            {
+                // A boomerang's identity is passing THROUGH crowds and returning: it must
+                // never die to pierce exhaustion (with data pierce 0 it would despawn on
+                // the first hit and never come back). It despawns only on catch/lifetime.
+                config.Pierce = int.MaxValue;
+            }
             if (_mode == Mode.Homing)
             {
                 // Seeker Pod identity: splash on impact (GDD §4); zone size rides the Area stat.

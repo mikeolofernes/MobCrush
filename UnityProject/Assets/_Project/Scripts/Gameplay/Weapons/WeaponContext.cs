@@ -37,11 +37,23 @@ namespace MobCrush.Gameplay.Weapons
         public Vector2 PlayerPosition => Player.transform.position;
         public Vector2 PlayerFacing => Player.Facing;
 
-        /// <summary>Convenience: resolve + apply one hit on any target (enemy or boss).</summary>
-        public void Hit(ITargetable target, float baseDamage, Vector2 from)
+        /// <summary>
+        /// Convenience: resolve + apply one hit on any target (enemy or boss).
+        /// Knockback affects regular enemies only — bosses are deliberately immune
+        /// (pattern choreography must not be shoved around).
+        /// </summary>
+        public void Hit(ITargetable target, float baseDamage, Vector2 from, float knockback = 0f)
         {
             var info = DamageResolver.Resolve(baseDamage, from);
             target.TakeDamage(info);
+
+            if (knockback > 0f && target.IsAlive && target is EnemyController enemy)
+            {
+                Vector2 dir = target.Position - from;
+                float sqr = dir.sqrMagnitude;
+                if (sqr > 0.0001f)
+                    enemy.ApplyKnockback(dir * (knockback / Mathf.Sqrt(sqr)));
+            }
         }
     }
 }
