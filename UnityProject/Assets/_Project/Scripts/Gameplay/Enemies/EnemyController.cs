@@ -58,9 +58,18 @@ namespace MobCrush.Gameplay.Enemies
         private float _damageMultiplier = 1f;
 
         /// <summary>Called by EnemySystem every frame. Brain moves; contact damage handled here (shared by all archetypes).</summary>
+        private float _flashTimer; // hit-flash (Loop 19): brief white-out on damage, decays here
+
         public void Tick(float dt)
         {
             if (!IsAlive) return;
+
+            if (_flashTimer > 0f)
+            {
+                _flashTimer -= dt;
+                if (_flashTimer <= 0f && _spriteRenderer != null && !FlagA) // FlagA: don't stomp the exploder telegraph tint
+                    _spriteRenderer.color = Color.white;
+            }
 
             _brain.Tick(this, dt);
 
@@ -117,6 +126,13 @@ namespace MobCrush.Gameplay.Enemies
             if (!IsAlive) return;
             _hp -= damage.Amount;
             _system.NotifyDamageDealt(damage.Amount, damage.Critical, transform.position);
+
+            // Hit feedback (Loop 19): brief flash tint; restored by Tick.
+            if (_spriteRenderer != null && !FlagA)
+            {
+                _spriteRenderer.color = new Color(1f, 1f, 0.6f);
+                _flashTimer = 0.07f;
+            }
             if (_hp <= 0f) Die();
         }
 
