@@ -1,0 +1,17 @@
+{
+    "name": "MobCrush.Gameplay",
+    "rootNamespace": "MobCrush.Gameplay",
+    "references": [
+        "MobCrush.Core",
+        "MobCrush.Data"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
