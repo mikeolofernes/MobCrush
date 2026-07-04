@@ -8,32 +8,32 @@ This project is built using **loop engineering**: the work is divided into 26 lo
 
 | Loop | Topic | Status |
 |------|-------|--------|
-| 0 | Game Production Blueprint | ✅ Complete — awaiting approval |
-| 1 | Product Vision | ⬜ Pending |
-| 2 | Game Design Document | ⬜ Pending |
-| 3 | Architecture | ⬜ Pending |
-| 4 | Core Framework | ⬜ Pending |
-| 5 | Player System | ⬜ Pending |
-| 6 | Enemy AI | ⬜ Pending |
-| 7 | Weapon System | ⬜ Pending |
-| 8 | Auto Combat | ⬜ Pending |
-| 9 | Projectile Framework | ⬜ Pending |
-| 10 | Experience System | ⬜ Pending |
-| 11 | Upgrade Selection | ⬜ Pending |
-| 12 | Enemy Spawner | ⬜ Pending |
-| 13 | Boss System | ⬜ Pending |
-| 14 | Equipment | ⬜ Pending |
-| 15 | Inventory | ⬜ Pending |
-| 16 | Meta Progression | ⬜ Pending |
-| 17 | UI | ⬜ Pending |
-| 18 | Audio | ⬜ Pending |
-| 19 | Visual Polish | ⬜ Pending |
-| 20 | Save System | ⬜ Pending |
-| 21 | Optimization | ⬜ Pending |
-| 22 | Testing | ⬜ Pending |
-| 23 | Live Operations | ⬜ Pending |
-| 24 | Store Publishing | ⬜ Pending |
-| 25 | Future Expansion | ⬜ Pending |
+| 0 | Game Production Blueprint | ✅ Complete |
+| 1 | Product Vision | ✅ Complete |
+| 2 | Game Design Document | ✅ Complete |
+| 3 | Architecture | ✅ Complete |
+| 4 | Core Framework | ✅ Complete |
+| 5 | Player System | ✅ Complete |
+| 6 | Enemy AI | ✅ Complete |
+| 7 | Weapon System | ✅ Complete |
+| 8 | Auto Combat | ✅ Complete |
+| 9 | Projectile Framework | ✅ Complete |
+| 10 | Experience System | ✅ Complete |
+| 11 | Upgrade Selection | ✅ Complete |
+| 12 | Enemy Spawner | ✅ Complete |
+| 13 | Boss System | ✅ Complete |
+| 14 | Equipment | ✅ Complete |
+| 15 | Inventory | ✅ Complete |
+| 16 | Meta Progression | ✅ Complete |
+| 17 | UI | ✅ Complete |
+| 18 | Audio | ✅ Complete |
+| 19 | Visual Polish | ✅ Complete |
+| 20 | Save System | ✅ Complete |
+| 21 | Optimization | ✅ Complete |
+| 22 | Testing | ✅ Complete |
+| 23 | Live Operations | ✅ Complete |
+| 24 | Store Publishing | ✅ Complete |
+| 25 | Future Expansion | ✅ Complete |
 
 Loop documents live in [`Docs/Loops/`](Docs/Loops/).
 
