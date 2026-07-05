@@ -32,6 +32,7 @@ namespace MobCrush.App
         [SerializeField] private List<TalentDefinition> _talentDefinitions = new();
 
         private DailyMissionService _missions;
+        private AchievementService _achievements;
         private RunRewardGranter _rewards;
 
         private void Awake() => DontDestroyOnLoad(gameObject);
@@ -50,12 +51,14 @@ namespace MobCrush.App
             var equipment = new EquipmentService(save, events, _economy, wallet, equipmentById);
             var inventory = new InventoryService(save, events, equipment, _economy);
             _missions = new DailyMissionService(save, events, wallet);
+            _achievements = new AchievementService(save, events, wallet);
             _rewards = new RunRewardGranter(events, wallet, equipment, _economy, _equipmentDefinitions);
 
             ServiceLocator.Register(wallet);
             ServiceLocator.Register(equipment);
             ServiceLocator.Register(inventory);
             ServiceLocator.Register(_missions);
+            ServiceLocator.Register(_achievements);
 
             // --- LiveOps: null-object defaults until real SDK adapters replace them (Loop 23). ---
             ServiceLocator.Register<IAnalyticsService>(new NullAnalyticsService());
@@ -69,7 +72,15 @@ namespace MobCrush.App
         private void OnDestroy()
         {
             _missions?.Dispose();
+            _achievements?.Dispose();
             _rewards?.Dispose();
+        }
+
+        private void OnApplicationFocus(bool focused)
+        {
+            // Midnight rollover while the app sat in the background: refresh the mission
+            // set on return (the service is a no-op if the date stamp hasn't changed).
+            if (focused) _missions?.EnsureTodaySet(DateTime.Now);
         }
 
         private static IReadOnlyDictionary<string, T> BuildRegistry<T>(

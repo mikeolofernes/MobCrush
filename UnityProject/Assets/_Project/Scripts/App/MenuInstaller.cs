@@ -13,18 +13,27 @@ namespace MobCrush.App
     public sealed class MenuInstaller : MonoBehaviour
     {
         [SerializeField] private InventoryView _inventoryView;
+        [SerializeField] private MissionsView _missionsView;
 
         private void Start()
         {
+            bool anyService = false;
+
             if (ServiceLocator.TryGet<InventoryService>(out var inventory))
             {
+                anyService = true;
                 if (_inventoryView != null) _inventoryView.Initialize(inventory);
             }
-            else
+
+            if (ServiceLocator.TryGet<Meta.Progression.DailyMissionService>(out var missions))
             {
-                Debug.LogWarning("MenuInstaller: InventoryService not registered — " +
-                                 "running Menu scene without Boot? Inventory UI stays inert.");
+                anyService = true;
+                if (_missionsView != null) _missionsView.Initialize(missions);
             }
+
+            if (!anyService)
+                Debug.LogWarning("MenuInstaller: no meta services registered — " +
+                                 "running Menu scene without Boot? Meta UI stays inert.");
         }
     }
 }

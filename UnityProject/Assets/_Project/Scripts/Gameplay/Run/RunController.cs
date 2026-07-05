@@ -24,8 +24,11 @@ namespace MobCrush.Gameplay.Run
         [SerializeField] private EnemySystem _enemies;
         [SerializeField] private ExperienceSystem _experience;
 
-        [Tooltip("Seconds between death/boss-kill and the Results screen — the sequence beat.")]
+        [Tooltip("Seconds between boss-kill and the Results screen — the victory beat.")]
         [SerializeField] private float _endSequenceSeconds = 1.5f;
+
+        [Tooltip("Seconds the player gets to take the revive offer after dying. The revive UI can end it early via DeclineRevive.")]
+        [SerializeField] private float _reviveWindowSeconds = 6f;
 
         private IEventBus _events;
         private IGameStateMachine _state;
@@ -61,21 +64,27 @@ namespace MobCrush.Gameplay.Run
 
         private void OnEnemyKilled(EnemyKilledEvent _) => _kills++;
 
+        private bool _reviveConsumed; // GDD §1: one revive per run
+
+        /// <summary>True while the death revive window is open — the revive UI keys off this.</summary>
+        public bool IsReviveWindowOpen => _deathPending && !_reviveConsumed;
+
         private void OnPlayerDied(PlayerDiedEvent _)
         {
             if (_ended || _deathPending) return;
             _deathPending = true;
             _state.Set(GameState.RunEnding);
-            // The end-sequence delay doubles as the revive window: the revive UI (ad/gem
-            // flow) calls TryRevive before it elapses, or the defeat lands.
-            _endRoutine = StartCoroutine(EndAfterDelay(victory: false));
+            // Defeat waits out the revive window (long enough to watch the prompt and decide,
+            // skippable via DeclineRevive). A spent revive gets only the short sequence beat.
+            float delay = _reviveConsumed ? _endSequenceSeconds : _reviveWindowSeconds;
+            _endRoutine = StartCoroutine(EndAfterDelay(victory: false, delay));
         }
 
         private void OnBossDefeated(BossDefeatedEvent _)
         {
             if (_ended || _deathPending) return;
             _state.Set(GameState.RunEnding);
-            _endRoutine = StartCoroutine(EndAfterDelay(victory: true));
+            _endRoutine = StartCoroutine(EndAfterDelay(victory: true, _endSequenceSeconds));
         }
 
         /// <summary>
@@ -85,18 +94,27 @@ namespace MobCrush.Gameplay.Run
         /// </summary>
         public bool TryRevive(float hpFraction = 0.5f)
         {
-            if (_ended || !_deathPending) return false;
+            if (_ended || !_deathPending || _reviveConsumed) return false;
 
             if (_endRoutine != null) StopCoroutine(_endRoutine);
+            _reviveConsumed = true;
             _deathPending = false;
             _player.Revive(hpFraction);
             _state.Set(GameState.Playing);
             return true;
         }
 
-        private IEnumerator EndAfterDelay(bool victory)
+        /// <summary>Revive UI declined (or the ad failed): skip the rest of the window, land the defeat now.</summary>
+        public void DeclineRevive()
         {
-            yield return new WaitForSeconds(_endSequenceSeconds); // RunEnding is not frozen — the beat plays out
+            if (_ended || !_deathPending) return;
+            if (_endRoutine != null) StopCoroutine(_endRoutine);
+            End(victory: false);
+        }
+
+        private IEnumerator EndAfterDelay(bool victory, float delay)
+        {
+            yield return new WaitForSeconds(delay); // RunEnding is not frozen — the beat plays out
             End(victory);
         }
 

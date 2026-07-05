@@ -90,8 +90,16 @@ namespace MobCrush.Gameplay.Upgrades
                     break;
 
                 case DraftOptionKind.Evolution:
-                    _weapons.Find(option.Weapon.Id)?.Evolve();
+                {
+                    var instance = _weapons.Find(option.Weapon.Id);
+                    if (instance != null)
+                    {
+                        instance.Evolve();
+                        // Post-Evolve the instance carries the evolved definition's id.
+                        _events.Publish(new WeaponEvolvedEvent(instance.Definition.Id));
+                    }
                     break;
+                }
 
                 case DraftOptionKind.NewPassive:
                 case DraftOptionKind.PassiveLevel:

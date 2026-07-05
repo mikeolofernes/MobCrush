@@ -57,6 +57,12 @@ namespace MobCrush.Core.Events
         public UpgradeChosenEvent(string upgradeId) { UpgradeId = upgradeId; }
     }
 
+    public readonly struct WeaponEvolvedEvent : IGameEvent
+    {
+        public readonly string WeaponId; // the evolved (new) form's id
+        public WeaponEvolvedEvent(string weaponId) { WeaponId = weaponId; }
+    }
+
     public readonly struct WaveStartedEvent : IGameEvent
     {
         public readonly int WaveIndex;
