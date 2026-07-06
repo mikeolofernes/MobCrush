@@ -3,7 +3,8 @@
     "rootNamespace": "MobCrush.Gameplay",
     "references": [
         "MobCrush.Core",
-        "MobCrush.Data"
+        "MobCrush.Data",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
